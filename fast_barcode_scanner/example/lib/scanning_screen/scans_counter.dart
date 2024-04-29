@@ -1,15 +1,14 @@
 import 'package:fast_barcode_scanner/fast_barcode_scanner.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 import '../history_screen/history_screen.dart';
 import '../scan_history.dart';
 
 class ScansCounter extends StatefulWidget {
-  const ScansCounter({Key? key}) : super(key: key);
+  const ScansCounter({super.key});
 
   @override
-  _ScansCounterState createState() => _ScansCounterState();
+  State<ScansCounter> createState() => _ScansCounterState();
 }
 
 class _ScansCounterState extends State<ScansCounter> {
@@ -57,7 +56,7 @@ class _ScansCounterState extends State<ScansCounter> {
           Expanded(
             child: barcode != null
                 ? Text(
-                    "${history.count(barcode)}x\n${describeEnum(barcode.type)} - ${(barcode.valueType != null ? describeEnum(barcode.valueType!) : "")}: ${barcode.value}")
+                    "${history.count(barcode)}x\n${barcode.type.name} - ${(barcode.valueType != null ? barcode.valueType!.name : "")}: ${barcode.value}")
                 : const SizedBox.shrink(),
           ),
         ],

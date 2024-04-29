@@ -1,5 +1,3 @@
-import 'package:flutter/foundation.dart';
-
 /// Contains all currently on iOS and Android supported barcode types.
 enum BarcodeType {
   /// Android, iOS
@@ -46,8 +44,4 @@ enum BarcodeType {
 
   /// iOS
   interleaved,
-}
-
-extension BarcodeTypeName on BarcodeType {
-  String get name => describeEnum(this);
 }

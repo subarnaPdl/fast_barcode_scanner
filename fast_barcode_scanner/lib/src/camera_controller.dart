@@ -20,119 +20,34 @@ class ScannerState {
 
   bool get isInitialized => _previewConfig != null;
 
-  bool get hasError => _error != null;
-
   Object? get error => _error;
 }
 
-/// Middleman, handling the communication with native platforms.
+/// This class facilitates the communication with the platform interface.
+/// It is purely for convinience. You can always use the
+/// `FastBarcodeScannerPlatform` or `MethodChannelFastBarcodeScanner` yourself.
 ///
-/// Allows for custom backends.
-abstract class CameraController {
-  static final _instance = _CameraController._internal();
+class CameraController {
+  CameraController._internal() : super();
+
+  static final _instance = CameraController._internal();
 
   factory CameraController() => _instance;
-
-  /// The cumulated state of the barcode scanner.
-  ///
-  /// Contains information about the configuration, torch,
-  /// and errors
-  final state = ScannerState();
-
-  /// reports most recently scanned codes
-  ValueNotifier<List<Barcode>> get scannedBarcodes;
-
-  /// the size of the image used by the native analysis system to scan the code
-  /// scanned codes have coordinate information that is based on this image size
-  Size? get analysisSize;
-
-  /// A [ValueNotifier] for camera state events.
-  ///
-  ///
-  final ValueNotifier<ScannerEvent> events =
-      ValueNotifier(ScannerEvent.uninitialized);
-
-  /// Informs the platform to initialize the camera.
-  ///
-  /// Events and errors are received via the current state's eventNotifier.
-  Future<void> initialize({
-    required List<BarcodeType> types,
-    required Resolution resolution,
-    required Framerate framerate,
-    required CameraPosition position,
-    required DetectionMode detectionMode,
-    IOSApiMode? apiMode,
-    OnDetectionHandler? onScan,
-  });
-
-  /// Stops the camera and disposes all associated resources.
-  ///
-  ///
-  Future<void> dispose();
-
-  /// Resumes the preview on the platform level.
-  ///
-  ///
-  Future<void> resumeCamera();
-
-  /// Pauses the preview on the platform level.
-  ///
-  ///
-  Future<void> pauseCamera();
-
-  /// Resumes the scanner on the platform level.
-  ///
-  ///
-  Future<void> resumeScanner();
-
-  /// Pauses the scanner on the platform level.
-  ///
-  ///
-  Future<void> pauseScanner();
-
-  /// Toggles the torch, if available.
-  ///
-  ///
-  Future<bool> toggleTorch();
-
-  /// Reconfigure the scanner.
-  ///
-  /// Can be called while running.
-  Future<void> configure({
-    List<BarcodeType>? types,
-    Resolution? resolution,
-    Framerate? framerate,
-    DetectionMode? detectionMode,
-    CameraPosition? position,
-    OnDetectionHandler? onScan,
-  });
-
-  /// Analyze a still image, which can be chosen from an image picker.
-  ///
-  /// It is recommended to pause the live scanner before calling this.
-  Future<List<Barcode>?> scanImage(ImageSource source);
-}
-
-class _CameraController implements CameraController {
-  _CameraController._internal() : super();
 
   StreamSubscription? _scanSilencerSubscription;
 
   final FastBarcodeScannerPlatform _platform =
       FastBarcodeScannerPlatform.instance;
 
-  @override
   final state = ScannerState();
 
-  @override
   final events = ValueNotifier(ScannerEvent.uninitialized);
 
   static const scannedCodeTimeout = Duration(milliseconds: 250);
   DateTime? _lastScanTime;
-  @override
+
   ValueNotifier<List<Barcode>> scannedBarcodes = ValueNotifier([]);
 
-  @override
   Size? get analysisSize {
     final previewConfig = state.previewConfig;
     if (previewConfig != null) {
@@ -165,14 +80,13 @@ class _CameraController implements CameraController {
     };
   }
 
-  @override
   Future<void> initialize({
     required List<BarcodeType> types,
     required Resolution resolution,
     required Framerate framerate,
     required CameraPosition position,
     required DetectionMode detectionMode,
-    IOSApiMode? apiMode,
+    ApiMode? apiMode,
     OnDetectionHandler? onScan,
   }) async {
     try {
@@ -211,7 +125,6 @@ class _CameraController implements CameraController {
     }
   }
 
-  @override
   Future<void> dispose() async {
     try {
       await _platform.dispose();
@@ -228,7 +141,6 @@ class _CameraController implements CameraController {
     }
   }
 
-  @override
   Future<void> pauseCamera() async {
     try {
       await _platform.stop();
@@ -240,7 +152,6 @@ class _CameraController implements CameraController {
     }
   }
 
-  @override
   Future<void> resumeCamera() async {
     try {
       await _platform.start();
@@ -252,7 +163,6 @@ class _CameraController implements CameraController {
     }
   }
 
-  @override
   Future<void> pauseScanner() async {
     try {
       await _platform.stopDetector();
@@ -263,7 +173,6 @@ class _CameraController implements CameraController {
     }
   }
 
-  @override
   Future<void> resumeScanner() async {
     try {
       await _platform.startDetector();
@@ -274,7 +183,6 @@ class _CameraController implements CameraController {
     }
   }
 
-  @override
   Future<bool> toggleTorch() async {
     if (!_togglingTorch) {
       _togglingTorch = true;
@@ -293,7 +201,6 @@ class _CameraController implements CameraController {
     return state._torch;
   }
 
-  @override
   Future<void> configure({
     List<BarcodeType>? types,
     Resolution? resolution,
@@ -303,7 +210,7 @@ class _CameraController implements CameraController {
     OnDetectionHandler? onScan,
   }) async {
     if (state.isInitialized && !_configuring) {
-      final _scannerConfig = state._scannerConfig!;
+      final scannerConfig = state._scannerConfig!;
       _configuring = true;
 
       try {
@@ -315,7 +222,7 @@ class _CameraController implements CameraController {
           position: position,
         );
 
-        state._scannerConfig = _scannerConfig.copyWith(
+        state._scannerConfig = scannerConfig.copyWith(
           types: types,
           resolution: resolution,
           framerate: framerate,
@@ -334,7 +241,6 @@ class _CameraController implements CameraController {
     }
   }
 
-  @override
   Future<List<Barcode>?> scanImage(ImageSource source) async {
     try {
       return _platform.scanImage(source);
@@ -353,20 +259,18 @@ class _CameraController implements CameraController {
 
 class ScannedBarcodes {
   final List<Barcode> barcodes;
-  final DateTime scannedAt;
+  final DateTime timestamp;
 
-  ScannedBarcodes(this.barcodes) : scannedAt = DateTime.now();
+  ScannedBarcodes(this.barcodes) : timestamp = DateTime.now();
 
   ScannedBarcodes.none() : this([]);
 
-  @override
   bool operator ==(Object other) =>
       identical(this, other) ||
       other is ScannedBarcodes &&
           runtimeType == other.runtimeType &&
           barcodes == other.barcodes &&
-          scannedAt == other.scannedAt;
+          timestamp == other.timestamp;
 
-  @override
-  int get hashCode => barcodes.hashCode ^ scannedAt.hashCode;
+  int get hashCode => barcodes.hashCode ^ timestamp.hashCode;
 }

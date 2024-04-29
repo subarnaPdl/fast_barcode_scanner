@@ -1,10 +1,9 @@
 import 'package:fast_barcode_scanner/fast_barcode_scanner.dart';
 import 'package:fast_barcode_scanner_example/scanning_screen/scanning_overlay_config.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 class OverlaySelector extends StatefulWidget {
-  const OverlaySelector(this._config, {Key? key}) : super(key: key);
+  const OverlaySelector(this._config, {super.key});
 
   final ScanningOverlayConfig _config;
 
@@ -18,7 +17,7 @@ class _OverlaySelectorState extends State<OverlaySelector> {
   @override
   void initState() {
     super.initState();
-    _items = ScanningOverlayType.values.map((e) => describeEnum(e)).toList();
+    _items = ScanningOverlayType.values.map((e) => e.name).toList();
     _selected = widget._config.enabledOverlays.toList();
   }
 

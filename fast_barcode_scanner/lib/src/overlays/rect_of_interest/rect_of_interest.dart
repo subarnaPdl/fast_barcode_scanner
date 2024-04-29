@@ -26,8 +26,11 @@ abstract class RectOfInterest {
     required Size previewSize,
   }) {
     return (code) {
-      final cornerPoints = code.cornerPoints;
-      if (cornerPoints != null) {
+      if (code.boundingBox != null) {
+        final cornerPoints = [
+          code.boundingBox!.topLeft,
+          code.boundingBox!.bottomRight
+        ];
         for (final cornerPoint in cornerPoints) {
           final scaledCornerOffset = scaleCodeCornerPoint(
             cornerPoint: cornerPoint.toOffset(),
@@ -52,8 +55,11 @@ abstract class RectOfInterest {
     required Size previewSize,
   }) {
     return codes.where((code) {
-      final cornerPoints = code.cornerPoints;
-      if (cornerPoints != null) {
+      if (code.boundingBox != null) {
+        final cornerPoints = [
+          code.boundingBox!.topLeft,
+          code.boundingBox!.bottomRight
+        ];
         for (final cornerPoint in cornerPoints) {
           final scaledCornerOffset = scaleCodeCornerPoint(
             cornerPoint: cornerPoint.toOffset(),

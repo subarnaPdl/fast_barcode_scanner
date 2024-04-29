@@ -1,7 +1,6 @@
 import 'package:fast_barcode_scanner/fast_barcode_scanner.dart';
 import 'package:fast_barcode_scanner_example/configure_screen/overlay_selector.dart';
 import 'package:fast_barcode_scanner_example/scanning_screen/scanning_overlay_config.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 import 'type_selector.dart';
@@ -11,8 +10,7 @@ typedef OnOverlayConfigurationChanged = void Function(
 
 class ConfigureScreen extends StatefulWidget {
   const ConfigureScreen(this._currentConfiguration, this._overlayConfig,
-      {Key? key, this.onOverlayConfigurationChanged})
-      : super(key: key);
+      {super.key, this.onOverlayConfigurationChanged});
 
   final ScannerConfiguration _currentConfiguration;
   final ScanningOverlayConfig _overlayConfig;
@@ -54,18 +52,18 @@ class _ConfigureScreenState extends State<ConfigureScreen> {
               ),
             );
 
-            if (shouldReturn == true) {
+            if (shouldReturn && context.mounted) {
               Navigator.pop(context);
             }
           },
         ),
         actions: [
           TextButton(
+            onPressed: applyChanges,
             child: const Text(
               'Apply',
               style: TextStyle(color: Colors.white),
             ),
-            onPressed: applyChanges,
           )
         ],
       ),
@@ -75,8 +73,7 @@ class _ConfigureScreenState extends State<ConfigureScreen> {
           tiles: [
             ListTile(
               title: const Text('Active code types'),
-              subtitle:
-                  Text(_config.types.map((e) => describeEnum(e)).join(', ')),
+              subtitle: Text(_config.types.map((e) => e.name).join(', ')),
               onTap: () async {
                 final types = await Navigator.push<List<BarcodeType>>(context,
                     MaterialPageRoute(builder: (_) {
@@ -114,34 +111,33 @@ class _ConfigureScreenState extends State<ConfigureScreen> {
               trailing: DropdownButton<CameraPosition>(
                   value: _config.position,
                   onChanged: (value) {
-                    setState(() {
-                      _config = _config.copyWith(position: value);
-                    });
+                    setState(() => _config = _config.copyWith(position: value));
                   },
                   items: buildDropdownItems(CameraPosition.values)),
             ),
             ListTile(
               title: const Text('Detection Mode'),
               trailing: DropdownButton<DetectionMode>(
-                  value: _config.detectionMode,
-                  onChanged: (value) {
-                    setState(() {
-                      _config = _config.copyWith(detectionMode: value);
-                    });
-                  },
-                  items: buildDropdownItems(DetectionMode.values)),
+                value: _config.detectionMode,
+                onChanged: (value) {
+                  setState(
+                    () => _config = _config.copyWith(detectionMode: value),
+                  );
+                },
+                items: buildDropdownItems(DetectionMode.values),
+              ),
             ),
             ListTile(
               title: const Text('Overlay'),
-              subtitle: Text(_overlayConfig.enabledOverlays
-                  .map((e) => describeEnum(e))
-                  .join(', ')),
+              subtitle: Text(
+                  _overlayConfig.enabledOverlays.map((e) => e.name).join(', ')),
               onTap: () async {
-                final overlays =
-                    await Navigator.push<List<ScanningOverlayType>>(context,
-                        MaterialPageRoute(builder: (_) {
-                  return OverlaySelector(_overlayConfig);
-                }));
+                final overlayRoute = MaterialPageRoute(
+                  builder: (_) => OverlaySelector(_overlayConfig),
+                );
+
+                final overlays = await Navigator.push(context, overlayRoute);
+
                 setState(() {
                   _overlayConfig = _overlayConfig.copyWith(
                     enabledOverlays: overlays,
@@ -155,10 +151,10 @@ class _ConfigureScreenState extends State<ConfigureScreen> {
     );
   }
 
-  List<DropdownMenuItem<E>> buildDropdownItems<E extends Object>(
+  List<DropdownMenuItem<E>> buildDropdownItems<E extends Enum>(
           List<E> enumCases) =>
       enumCases
-          .map((v) => DropdownMenuItem(value: v, child: Text(describeEnum(v))))
+          .map((v) => DropdownMenuItem(value: v, child: Text(v.name)))
           .toList();
 
   Future<void> applyChanges() async {
@@ -171,6 +167,8 @@ class _ConfigureScreenState extends State<ConfigureScreen> {
         position: _config.position,
       );
     } catch (error) {
+      if (!mounted) return;
+
       showDialog(
         context: context,
         builder: (_) => AlertDialog(
@@ -180,8 +178,10 @@ class _ConfigureScreenState extends State<ConfigureScreen> {
       );
 
       return;
+    } finally {
+      if (mounted) {
+        Navigator.pop(context, _config);
+      }
     }
-
-    Navigator.pop(context, _config);
   }
 }

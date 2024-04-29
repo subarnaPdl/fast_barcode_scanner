@@ -1,9 +1,8 @@
 import 'package:fast_barcode_scanner/fast_barcode_scanner.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 class BarcodeTypeSelector extends StatefulWidget {
-  const BarcodeTypeSelector(this._config, {Key? key}) : super(key: key);
+  const BarcodeTypeSelector(this._config, {super.key});
 
   final ScannerConfiguration _config;
 
@@ -17,7 +16,7 @@ class _BarcodeTypeSelectorState extends State<BarcodeTypeSelector> {
   @override
   void initState() {
     super.initState();
-    _items = BarcodeType.values.map((e) => describeEnum(e)).toList();
+    _items = BarcodeType.values.map((e) => e.name).toList();
     _selected = widget._config.types.toList();
   }
 

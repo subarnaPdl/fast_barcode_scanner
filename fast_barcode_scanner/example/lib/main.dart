@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:fast_barcode_scanner/fast_barcode_scanner.dart';
 import 'package:fast_barcode_scanner_example/utils.dart';
 import 'package:flutter/material.dart';
@@ -12,7 +10,7 @@ void main() {
 }
 
 class HomeScreen extends StatefulWidget {
-  const HomeScreen({Key? key}) : super(key: key);
+  const HomeScreen({super.key});
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
@@ -32,71 +30,48 @@ class _HomeScreenState extends State<HomeScreen> {
           children: [
             ElevatedButton(
               child: const Text('Open Scanner'),
-              onPressed: () async {
-                IOSApiMode? apiMode;
-                if (Platform.isIOS) {
-                  apiMode = await showDialog<IOSApiMode>(
-                      context: context,
-                      builder: (context) => AlertDialog(
-                            title: const Text("Scanning Framework"),
-                            actions: [
-                              TextButton(
-                                  onPressed: () {
-                                    Navigator.pop(context, IOSApiMode.avFoundation);
-                                  },
-                                  child: const Text("AVFoundation")),
-                              TextButton(
-                                onPressed: () {
-                                  Navigator.pop(context, IOSApiMode.visionStandard);
-                                },
-                                child: const Text("Vision"),
-                              ),
-                            ],
-                          )) ?? IOSApiMode.avFoundation;
-                }
+              onPressed: () {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (_) => ScanningScreen(
-                      dispose: _disposeCheckboxValue,
-                      apiMode: apiMode,
-                    ),
+                    builder: (_) =>
+                        ScanningScreen(dispose: _disposeCheckboxValue),
                   ),
                 );
               },
             ),
             ElevatedButton(
               onPressed: () async {
-                final cam = CameraController();
-
                 final dialog = SimpleDialog(
                   children: [
                     SimpleDialogOption(
-                      child: const Text('Choose image'),
-                      onPressed: () => Navigator.pop(context, 1),
+                      child: const Text('Scan sample image'),
+                      onPressed: () => Navigator.pop(context, 'sample'),
                     ),
                     SimpleDialogOption(
                       child: const Text('Open Picker'),
-                      onPressed: () => Navigator.pop(context, 2),
+                      onPressed: () => Navigator.pop(context, 'picker'),
                     )
                   ],
                 );
 
-                final result = await showDialog<int>(
+                final result = await showDialog<String>(
                     context: context, builder: (_) => dialog);
 
                 final ImageSource source;
-                if (result == 1) {
+                if (result == 'sample') {
                   final bytes = await rootBundle.load('assets/barcodes.png');
                   source = ImageSource.binary(bytes);
-                } else if (result == 2) {
+                } else if (result == 'picker') {
                   source = ImageSource.picker();
                 } else {
                   return;
                 }
 
                 try {
-                  final barcodes = await cam.scanImage(source);
+                  final barcodes = await CameraController().scanImage(source);
+
+                  if (!context.mounted) return;
 
                   showDialog(
                     context: context,
@@ -116,11 +91,15 @@ class _HomeScreenState extends State<HomeScreen> {
 
                       return SimpleDialog(
                         title: const Text('Result'),
-                        children: children,
+                        children: [
+                          Image.asset("assets/barcodes.png"),
+                          ...children
+                        ],
                       );
                     },
                   );
                 } catch (error, stack) {
+                  if (!context.mounted) return;
                   presentErrorAlert(context, error, stack);
                 }
               },

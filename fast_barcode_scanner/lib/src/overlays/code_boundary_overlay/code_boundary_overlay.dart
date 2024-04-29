@@ -10,10 +10,10 @@ class CodeBoundaryOverlay extends StatefulWidget {
   final CodeValueDisplayBuilder? codeValueDisplayBuilder;
 
   const CodeBoundaryOverlay({
-    Key? key,
+    super.key,
     this.codeBorderPaintBuilder,
     this.codeValueDisplayBuilder,
-  }) : super(key: key);
+  });
 
   @override
   State<CodeBoundaryOverlay> createState() => _CodeBoundaryOverlayState();
@@ -67,14 +67,14 @@ class BasicBarcodeValueDisplay extends CodeValueDisplay {
 
   BasicBarcodeValueDisplay({
     required this.text,
-    required Color color,
-    CodeValueDisplayLocation location = CodeValueDisplayLocation.centerBottom,
+    required super.color,
+    super.location,
     CodeBorderPaintBuilder? customBarcodePaintSelector,
     this.fontSize = 16.0,
     this.backgroundColor = Colors.white,
     this.fontWeight = FontWeight.w600,
     this.fontFamily = "Roboto",
-  }) : super(location: location, color: color);
+  });
 
   @override
   TextSpan get textSpan => TextSpan(

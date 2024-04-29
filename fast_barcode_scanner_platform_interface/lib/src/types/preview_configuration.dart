@@ -3,16 +3,8 @@ import 'package:flutter/foundation.dart';
 /// Supported resolutions. Not all devices support all resolutions!
 enum Resolution { sd480, hd720, hd1080, hd4k }
 
-extension ResolutionName on Resolution {
-  String get name => describeEnum(this);
-}
-
 /// Supported Framerates. Not all devices support all framerates!
 enum Framerate { fps30, fps60, fps120, fps240 }
-
-extension FramerateName on Framerate {
-  String get name => describeEnum(this);
-}
 
 /// Dictates how the camera reacts to detections
 enum DetectionMode {
@@ -28,16 +20,8 @@ enum DetectionMode {
   continuous
 }
 
-extension DetectionModeName on DetectionMode {
-  String get name => describeEnum(this);
-}
-
 /// The position of the camera.
 enum CameraPosition { front, back }
-
-extension CameraPositionName on CameraPosition {
-  String get name => describeEnum(this);
-}
 
 /// The configuration by which the camera feed can be laid out in the UI.
 class PreviewConfiguration {
@@ -103,11 +87,8 @@ class PreviewConfiguration {
   }
 }
 
-abstract class IOSApiMode {
-  static const avFoundation = AVFoundationMode();
-  static const visionStandard = VisionMode();
-
-  const IOSApiMode();
+abstract class ApiMode {
+  const ApiMode();
 
   String get name;
 
@@ -119,29 +100,18 @@ abstract class IOSApiMode {
   Map<String, dynamic> get config => {};
 }
 
-class AVFoundationMode extends IOSApiMode {
+class AppleApiMode extends ApiMode {
   @override
-  final String name = "avFoundation";
-
-  const AVFoundationMode();
-}
-
-class VisionMode extends IOSApiMode {
-  static const standardConfidence = 0.6;
-
-  /// The minimum confidence that the Vision API should use to filter scanned
-  /// codes given as a number between 0..1
-  ///
-  /// defaults to 0.6
-  final double confidence;
+  final String name;
 
   @override
-  final String name = "vision";
+  final Map<String, dynamic> config;
 
-  const VisionMode({this.confidence = standardConfidence});
+  const AppleApiMode.avFoundation()
+      : name = "avFoundation",
+        config = const {};
 
-  @override
-  Map<String, dynamic> get config => {
-        "confidence": confidence.clamp(0, 1),
-      };
+  AppleApiMode.vision(double confidence)
+      : name = "vision",
+        config = {"confidence": clampDouble(confidence, 0, 1)};
 }

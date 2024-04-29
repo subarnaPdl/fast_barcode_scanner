@@ -14,10 +14,10 @@ class BlurPreviewOverlay extends StatelessWidget {
   final Duration duration;
 
   const BlurPreviewOverlay({
-    Key? key,
+    super.key,
     this.blurAmount = 30,
     this.duration = const Duration(milliseconds: 500),
-  }) : super(key: key);
+  });
 
   bool shouldBlur(event) => event == ScannerEvent.detected;
 

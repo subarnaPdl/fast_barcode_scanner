@@ -21,7 +21,7 @@ class MaterialPreviewOverlay extends StatefulWidget {
   /// * `aspectRatio` of the finder border.
   ///
   const MaterialPreviewOverlay({
-    Key? key,
+    super.key,
     required this.rectOfInterest,
     this.showSensing = false,
     this.sensingColor = Colors.white,
@@ -29,7 +29,7 @@ class MaterialPreviewOverlay extends StatefulWidget {
     this.cutOutBorderColor = Colors.black87,
     this.onScan,
     this.onScannedBoundaryColorSelector,
-  }) : super(key: key);
+  });
 
   final bool showSensing;
   final Color? backgroundColor;

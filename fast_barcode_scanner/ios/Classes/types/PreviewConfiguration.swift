@@ -1,15 +1,13 @@
 struct PreviewConfiguration {
-    let width: Int32
-    let height: Int32
-    let targetRotation: Int
-    let textureId: Int64
+  let previewWidth: Int32
+  let previewHeight: Int32
+  let analysisWidth: Int32
+  let analysisHeight: Int32
 
-    var asDict: [String: Any] {
-        ["width": height,
-         "height": width,
-         "targetRotation": targetRotation,
-         "textureId": textureId,
-         "analysisWidth": width,
-         "analysisHeight": height]
-    }
+  var dict: [String: Any] {
+    [
+      "preview_size": [previewWidth, previewHeight],
+      "analysis_size": [analysisWidth, analysisHeight],
+    ]
+  }
 }

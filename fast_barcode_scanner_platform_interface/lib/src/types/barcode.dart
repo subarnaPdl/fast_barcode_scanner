@@ -1,7 +1,5 @@
 import 'dart:math';
 
-import 'package:flutter/foundation.dart';
-
 import '../../fast_barcode_scanner_platform_interface.dart';
 
 /// Describes a Barcode with type and value.
@@ -9,14 +7,10 @@ import '../../fast_barcode_scanner_platform_interface.dart';
 class Barcode {
   /// Creates a [Barcode] from a Flutter Message Protocol
   Barcode(List<dynamic> data)
-      : type = BarcodeType.values.firstWhere((e) => describeEnum(e) == data[0]),
+      : type = BarcodeType.values.firstWhere((e) => e.name == data[0]),
         value = data[1],
-        valueType = data.length > 2
-            ? data[2] != null
-                ? BarcodeValueType.values[data[2]]
-                : null
-            : null,
-        cornerPoints = data.length > 3 ? parsePointList(data[3]) : null;
+        valueType = data[2] != null ? BarcodeValueType.values[data[2]] : null,
+        boundingBox = parsePoints(data.sublist(3).cast<double>());
 
   /// The type of the barcode.
   ///
@@ -35,10 +29,12 @@ class Barcode {
   final BarcodeValueType? valueType;
 
   /// The corners of the visible barcode. This can be used for custom drawing.
-  final List<Point>? cornerPoints;
+  final Rectangle? boundingBox;
 
-  static List<Point<int>>? parsePointList(List<dynamic>? pointList) {
-    return pointList?.map((e) => Point<int>(e[0], e[1])).toList();
+  static Rectangle? parsePoints(List<double> pointList) {
+    final topLeft = Point(pointList[0], pointList[1]);
+    final bottomRight = Point(pointList[2], pointList[3]);
+    return Rectangle.fromPoints(topLeft, bottomRight);
   }
 
   @override
@@ -47,7 +43,7 @@ class Barcode {
       other.type == type &&
       other.value == value &&
       other.valueType == valueType &&
-      other.cornerPoints == cornerPoints;
+      other.boundingBox == boundingBox;
 
   @override
   int get hashCode =>
@@ -55,7 +51,7 @@ class Barcode {
       type.hashCode ^
       value.hashCode ^
       valueType.hashCode ^
-      cornerPoints.hashCode;
+      boundingBox.hashCode;
 
   @override
   String toString() {
@@ -64,7 +60,7 @@ class Barcode {
       type: $type,
       value: $value,
       valueType: $valueType,
-      rect: $cornerPoints
+      rect: $boundingBox
     }
     ''';
   }

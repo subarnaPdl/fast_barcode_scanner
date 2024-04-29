@@ -7,6 +7,7 @@ import android.util.Log
 import android.view.Surface
 import androidx.camera.core.*
 import androidx.camera.core.Camera
+import androidx.camera.core.resolutionselector.ResolutionSelector
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
@@ -168,12 +169,10 @@ class Camera(
         // TODO: Handle rotation properly
         preview = Preview.Builder()
             .setTargetRotation(Surface.ROTATION_0)
-            .setTargetResolution(scannerConfiguration.resolution.portrait())
             .build()
 
         imageAnalysis = ImageAnalysis.Builder()
             .setTargetRotation(Surface.ROTATION_0)
-            .setTargetResolution(scannerConfiguration.resolution.portrait())
             .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
             .build()
             .also { it.setAnalyzer(cameraExecutor, barcodeScanner) }
@@ -200,7 +199,7 @@ class Camera(
         cameraSurfaceProvider = Preview.SurfaceProvider {
             val surfaceTexture = flutterTextureEntry.surfaceTexture()
             surfaceTexture.setDefaultBufferSize(it.resolution.width, it.resolution.height)
-            it.provideSurface(Surface(surfaceTexture), cameraExecutor, {})
+            it.provideSurface(Surface(surfaceTexture), cameraExecutor) {}
         }
 
         // Attach the viewfinder's surface provider to preview use case

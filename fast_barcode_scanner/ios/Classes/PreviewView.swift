@@ -9,28 +9,28 @@ import AVFoundation
 import Flutter
 
 class PreviewView: UIView, FlutterPlatformView {
-    func view() -> UIView {
-        self
+  func view() -> UIView {
+    self
+  }
+
+  // MARK: AVFoundation session
+  var session: AVCaptureSession? {
+    get {
+      videoPreviewLayer.session
     }
 
-    // MARK: AVFoundation session
-    var session: AVCaptureSession? {
-        get {
-            videoPreviewLayer.session
-        }
-
-        set {
-            videoPreviewLayer.session = newValue
-        }
+    set {
+      videoPreviewLayer.session = newValue
     }
+  }
 
-    var videoPreviewLayer: AVCaptureVideoPreviewLayer {
-        (layer as! AVCaptureVideoPreviewLayer)
-    }
+  var videoPreviewLayer: AVCaptureVideoPreviewLayer {
+    (layer as! AVCaptureVideoPreviewLayer)
+  }
 
-    // MARK: UIView
-    override class var layerClass: AnyClass {
-        AVCaptureVideoPreviewLayer.self
-    }
+  // MARK: UIView
+  override class var layerClass: AnyClass {
+    AVCaptureVideoPreviewLayer.self
+  }
 
 }

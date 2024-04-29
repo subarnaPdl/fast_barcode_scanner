@@ -11,7 +11,7 @@ typedef OnDetectionHandler = void Function(List<Barcode>);
 
 /// The interface that implementations of fast_barcode_scanner must implement.
 ///
-/// Platform implementations should extend this class rather than implement it as `fast_barcode_scanner`
+/// Platform implementations should extend this class rather than implement it.
 /// Extending this class (using `extends`) ensures that the subclass will get the default implementation, while
 /// platform implementations that `implements` this interface will be broken by newly added
 /// [FastBarcodeScannerPlatform] methods.
@@ -43,7 +43,7 @@ abstract class FastBarcodeScannerPlatform extends PlatformInterface {
       Framerate framerate,
       DetectionMode detectionMode,
       CameraPosition position,
-      {IOSApiMode? apiMode}) {
+      {ApiMode? apiMode}) {
     throw UnimplementedError('init() has not been implemented');
   }
 

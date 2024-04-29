@@ -40,16 +40,24 @@ class CodeBorderPainter extends CustomPainter {
   void paint(Canvas canvas, Size size) {
     for (Barcode barcode in barcodes) {
       final Path path = Path();
-      final corners = barcode.cornerPoints;
-      if (corners != null) {
+
+      if (barcode.boundingBox != null) {
+        final corners = [
+          barcode.boundingBox!.topLeft,
+          barcode.boundingBox!.bottomRight
+        ];
+
         final offsets = corners
             .map((e) => scaleCodeCornerPoint(
                 cornerPoint: Offset(e.x.toDouble(), e.y.toDouble()),
                 analysisImageSize: imageSize,
                 widgetSize: size))
             .toList();
+
         path.moveTo(offsets[0].dx, offsets[0].dy);
+
         double minX = -1, maxX = -1, minY = -1, maxY = -1;
+
         for (var offset in offsets) {
           if (minX == -1 || offset.dx < minX) {
             minX = offset.dx;

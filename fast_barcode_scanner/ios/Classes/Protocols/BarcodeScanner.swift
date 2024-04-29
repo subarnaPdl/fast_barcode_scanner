@@ -1,15 +1,19 @@
 import AVFoundation
+import Flutter
 
 protocol BarcodeScanner {
-    typealias ResultHandler = (Any?) -> Void
 
-    var session: AVCaptureSession? { get set }
+  /// Either a serialized list of barcodes or a `FlutterError`
+  /// Serialization format: [type, value, valueType, minX, minY, maxX, maxY]
+  typealias ResultHandler = (Any?) -> Void
 
-    var symbologies: [String] { get set }
+  var session: AVCaptureSession? { get set }
 
-    var onDetection: (() -> Void)? { get set }
+  var symbologies: [String] { get set }
 
-    func start()
+  var onDetection: (() -> Void)? { get set }
 
-    func stop()
+  func start()
+
+  func stop()
 }

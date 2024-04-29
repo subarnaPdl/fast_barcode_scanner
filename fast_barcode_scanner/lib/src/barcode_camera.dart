@@ -20,30 +20,28 @@ Widget _defaultOnError(BuildContext context, Object? error) {
 
 /// The main class connecting the platform code to the UI.
 ///
-/// This class is used in the widget tree and connects to the camera
-/// as soon as didChangeDependencies gets called.
+/// This class connects to the camera as soon as `didChangeDependencies` gets called.
 class BarcodeCamera extends StatefulWidget {
   const BarcodeCamera({
-    Key? key,
+    super.key,
     required this.types,
     this.mode = DetectionMode.pauseVideo,
     this.resolution = Resolution.hd720,
     this.framerate = Framerate.fps30,
     this.position = CameraPosition.back,
-    this.apiMode,
+    this.appleApiMode,
     this.onScan,
     this.children = const [],
     this.dispose = true,
     ErrorCallback? onError,
-  })  : onError = onError ?? _defaultOnError,
-        super(key: key);
+  }) : onError = onError ?? _defaultOnError;
 
   final List<BarcodeType> types;
   final Resolution resolution;
   final Framerate framerate;
   final DetectionMode mode;
   final CameraPosition position;
-  final IOSApiMode? apiMode;
+  final ApiMode? appleApiMode;
   final OnDetectionHandler? onScan;
   final List<Widget> children;
   final ErrorCallback onError;
@@ -69,7 +67,7 @@ class BarcodeCameraState extends State<BarcodeCamera> {
             resolution: widget.resolution,
             framerate: widget.framerate,
             position: widget.position,
-            onScan: onScan,
+            onScan: widget.onScan,
           )
         : cameraController.initialize(
             types: widget.types,
@@ -77,8 +75,8 @@ class BarcodeCameraState extends State<BarcodeCamera> {
             framerate: widget.framerate,
             position: widget.position,
             detectionMode: widget.mode,
-            onScan: onScan,
-            apiMode: widget.apiMode,
+            onScan: widget.onScan,
+            apiMode: widget.appleApiMode,
           );
 
     configurationFuture
@@ -88,14 +86,9 @@ class BarcodeCameraState extends State<BarcodeCamera> {
     cameraController.events.addListener(onScannerEvent);
   }
 
-  void onScan(List<Barcode> barcodes) {
-    widget.onScan?.call(barcodes);
-  }
-
   void onScannerEvent() {
-    if (!mounted) {
-      return;
-    }
+    if (!mounted) return;
+
     if (cameraController.events.value != ScannerEvent.error && showingError) {
       setState(() => showingError = false);
     } else if (cameraController.events.value == ScannerEvent.error) {
@@ -112,12 +105,14 @@ class BarcodeCameraState extends State<BarcodeCamera> {
     }
 
     cameraController.events.removeListener(onScannerEvent);
+
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     final cameraState = cameraController.state;
+
     return ColoredBox(
       color: Colors.black,
       child: AnimatedOpacity(
@@ -132,15 +127,22 @@ class BarcodeCameraState extends State<BarcodeCamera> {
                 fit: StackFit.expand,
                 children: [
                   if (cameraState.isInitialized)
-                    _buildPreview(cameraState.previewConfig!),
+                    _CameraPreview(config: cameraState.previewConfig!),
                   ...widget.children
                 ],
               ),
       ),
     );
   }
+}
 
-  Widget _buildPreview(PreviewConfiguration config) {
+class _CameraPreview extends StatelessWidget {
+  const _CameraPreview({required this.config});
+
+  final PreviewConfiguration config;
+
+  @override
+  Widget build(BuildContext context) {
     return FittedBox(
       fit: BoxFit.cover,
       child: SizedBox(

@@ -9,16 +9,16 @@ import 'scans_counter.dart';
 
 class ScanningScreen extends StatefulWidget {
   const ScanningScreen({
-    Key? key,
+    super.key,
     required this.dispose,
-    this.apiMode = IOSApiMode.avFoundation,
-  }) : super(key: key);
+    this.appleApiMode = const AppleApiMode.avFoundation(),
+  });
 
   final bool dispose;
-  final IOSApiMode? apiMode;
+  final AppleApiMode? appleApiMode;
 
   @override
-  _ScanningScreenState createState() => _ScanningScreenState();
+  State<ScanningScreen> createState() => _ScanningScreenState();
 }
 
 class _ScanningScreenState extends State<ScanningScreen> {
@@ -99,15 +99,17 @@ class _ScanningScreenState extends State<ScanningScreen> {
         framerate: Framerate.fps30,
         mode: DetectionMode.continuous,
         position: CameraPosition.back,
-        apiMode: widget.apiMode,
+        appleApiMode: widget.appleApiMode,
         onScan: (code) {
           history.addAll(code);
         },
+        dispose: widget.dispose,
         children: [
           if (_scanningOverlayConfig.enabledOverlays
               .contains(ScanningOverlayType.materialOverlay))
             MaterialPreviewOverlay(
-              rectOfInterest: RectOfInterest.wide(), // this can be wide or square
+              rectOfInterest:
+                  RectOfInterest.wide(), // this can be wide or square
               onScan: (codes) {
                 // these are codes that only appear within the finder rectangle
               },
@@ -141,7 +143,6 @@ class _ScanningScreenState extends State<ScanningScreen> {
               .contains(ScanningOverlayType.blurPreview))
             const BlurPreviewOverlay()
         ],
-        dispose: widget.dispose,
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
@@ -177,12 +178,14 @@ class _ScanningScreenState extends State<ScanningScreen> {
                                           ? cam.pauseCamera()
                                           : cam.resumeCamera();
 
-                                      future
-                                          .then((_) =>
-                                              _cameraRunning.value = !isRunning)
-                                          .catchError((error, stack) {
+                                      future.then((_) {
+                                        _cameraRunning.value = !isRunning;
+                                      }).catchError((error, stack) {
                                         presentErrorAlert(
-                                            context, error, stack);
+                                          context,
+                                          error,
+                                          stack,
+                                        );
                                       });
                                     },
                                     child: Text(isRunning
@@ -199,12 +202,14 @@ class _ScanningScreenState extends State<ScanningScreen> {
                                           ? cam.pauseScanner()
                                           : cam.resumeScanner();
 
-                                      future
-                                          .then((_) => _scannerRunning.value =
-                                              !isRunning)
-                                          .catchError((error, stackTrace) {
+                                      future.then((_) {
+                                        _scannerRunning.value = !isRunning;
+                                      }).catchError((error, stackTrace) {
                                         presentErrorAlert(
-                                            context, error, stackTrace);
+                                          context,
+                                          error,
+                                          stackTrace,
+                                        );
                                       });
                                     },
                                     child: Text(isRunning
@@ -217,13 +222,14 @@ class _ScanningScreenState extends State<ScanningScreen> {
                               builder: (context, isTorchActive, _) =>
                                   ElevatedButton(
                                 onPressed: () {
-                                  cam
-                                      .toggleTorch()
-                                      .then((torchState) =>
-                                          _torchIconState.value = torchState)
-                                      .catchError((error, stackTrace) {
+                                  cam.toggleTorch().then((torchState) {
+                                    _torchIconState.value = torchState;
+                                  }).catchError((error, stackTrace) {
                                     presentErrorAlert(
-                                        context, error, stackTrace);
+                                      context,
+                                      error,
+                                      stackTrace,
+                                    );
                                   });
                                 },
                                 child: Text(

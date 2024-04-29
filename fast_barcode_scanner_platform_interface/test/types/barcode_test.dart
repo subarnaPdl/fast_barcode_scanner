@@ -28,7 +28,7 @@ void main() {
       ]
     ]);
 
-    expect(barcodeQR.cornerPoints, [
+    expect(barcodeQR.boundingBox, [
       const Point(1, 2),
       const Point(3, 4),
       const Point(5, 6),
