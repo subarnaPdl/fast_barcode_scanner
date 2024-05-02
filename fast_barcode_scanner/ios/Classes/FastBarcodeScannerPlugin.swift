@@ -23,16 +23,19 @@ public class FastBarcodeScannerPlugin: NSObject, FlutterPlugin, FlutterStreamHan
   public static func register(with registrar: FlutterPluginRegistrar) {
     let commandChannel = FlutterMethodChannel(
       name: "com.jhoogstraat/fast_barcode_scanner",
-      binaryMessenger: registrar.messenger())
+      binaryMessenger: registrar.messenger()
+    )
 
     let barcodeEventChannel = FlutterEventChannel(
       name: "com.jhoogstraat/fast_barcode_scanner/detections",
-      binaryMessenger: registrar.messenger())
+      binaryMessenger: registrar.messenger()
+    )
 
     let instance = FastBarcodeScannerPlugin(
       commands: commandChannel,
       events: barcodeEventChannel,
-      factory: PreviewViewFactory())
+      factory: PreviewViewFactory()
+    )
 
     registrar.register(instance.factory, withId: "fast_barcode_scanner.preview")
     registrar.addMethodCallDelegate(instance, channel: commandChannel)

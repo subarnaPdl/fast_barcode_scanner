@@ -6,8 +6,6 @@ class ScannedBarcodes {
 
   ScannedBarcodes(this.barcodes) : scannedAt = DateTime.now();
 
-  ScannedBarcodes.none() : this([]);
-
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||

@@ -2,7 +2,7 @@ import 'dart:ui';
 
 import 'package:fast_barcode_scanner_platform_interface/fast_barcode_scanner_platform_interface.dart';
 
-import '../../corner_point_utils.dart';
+import '../corner_point_utils.dart';
 
 typedef CodeFilter = bool Function(Barcode code);
 
@@ -107,14 +107,6 @@ class WideRectOfInterest extends RectOfInterest {
       other is WideRectOfInterest &&
           runtimeType == other.runtimeType &&
           horizontalPadding == other.horizontalPadding;
-
-  @override
-  int get hashCode => horizontalPadding.hashCode;
-
-  @override
-  String toString() {
-    return 'RectOfInterestDimensions{horizontalPadding: $horizontalPadding}';
-  }
 }
 
 class SquareRectOfInterest extends RectOfInterest {

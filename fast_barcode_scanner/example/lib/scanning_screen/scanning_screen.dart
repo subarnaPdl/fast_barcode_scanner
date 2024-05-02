@@ -47,7 +47,7 @@ class _ScanningScreenState extends State<ScanningScreen> {
     ],
   );
 
-  final cam = CameraController();
+  final cam = CameraController.shared;
 
   @override
   Widget build(BuildContext context) {
@@ -114,7 +114,7 @@ class _ScanningScreenState extends State<ScanningScreen> {
                 // these are codes that only appear within the finder rectangle
               },
               showSensing: true,
-              onScannedBoundaryColorSelector: (codes) {
+              onScannedBoundsColor: (codes) {
                 if (codes.isNotEmpty) {
                   return codes.first.value.hashCode % 2 == 0
                       ? Colors.orange
@@ -129,15 +129,10 @@ class _ScanningScreenState extends State<ScanningScreen> {
               codeBorderPaintBuilder: (code) {
                 return code.value.hashCode % 2 == 0 ? orangePaint : greenPaint;
               },
-              codeValueDisplayBuilder: (code) {
-                return BasicBarcodeValueDisplay(
-                  text: code.value,
-                  color: code.value.hashCode % 2 == 0
-                      ? Colors.orange
-                      : Colors.green,
-                  location: CodeValueDisplayLocation.centerTop,
-                );
-              },
+              barcodeValueStyle: (code) => TextStyle(
+                color:
+                    code.value.hashCode % 2 == 0 ? Colors.orange : Colors.green,
+              ),
             ),
           if (_scanningOverlayConfig.enabledOverlays
               .contains(ScanningOverlayType.blurPreview))

@@ -38,7 +38,7 @@ class _ScansCounterState extends State<ScansCounter> {
         children: [
           TextButton(
               onPressed: () async {
-                final cam = CameraController();
+                final cam = CameraController.shared;
                 cam.pauseCamera();
                 await Navigator.push(context,
                     MaterialPageRoute(builder: (_) => const HistoryScreen()));

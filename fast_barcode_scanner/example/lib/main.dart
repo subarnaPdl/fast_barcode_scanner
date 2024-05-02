@@ -69,7 +69,8 @@ class _HomeScreenState extends State<HomeScreen> {
                 }
 
                 try {
-                  final barcodes = await CameraController().scanImage(source);
+                  final barcodes =
+                      await CameraController.shared.scanImage(source);
 
                   if (!context.mounted) return;
 

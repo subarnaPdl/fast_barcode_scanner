@@ -2,17 +2,16 @@ import 'package:fast_barcode_scanner/fast_barcode_scanner.dart';
 import 'package:fast_barcode_scanner/src/overlays/code_boundary_overlay/code_border_painter.dart';
 import 'package:flutter/material.dart';
 
-typedef CodeBorderPaintBuilder = Paint Function(Barcode code);
-typedef CodeValueDisplayBuilder = CodeValueDisplay? Function(Barcode code);
+typedef CodeBorderPaintBuilder = Paint Function(Barcode);
 
 class CodeBoundaryOverlay extends StatefulWidget {
-  final CodeBorderPaintBuilder? codeBorderPaintBuilder;
-  final CodeValueDisplayBuilder? codeValueDisplayBuilder;
+  final Paint Function(Barcode)? codeBorderPaintBuilder;
+  final TextStyle Function(Barcode)? barcodeValueStyle;
 
   const CodeBoundaryOverlay({
     super.key,
     this.codeBorderPaintBuilder,
-    this.codeValueDisplayBuilder,
+    this.barcodeValueStyle,
   });
 
   @override
@@ -20,70 +19,28 @@ class CodeBoundaryOverlay extends StatefulWidget {
 }
 
 class _CodeBoundaryOverlayState extends State<CodeBoundaryOverlay> {
-  final _cameraController = CameraController();
+  final _cameraController = CameraController.shared;
 
   @override
   Widget build(BuildContext context) {
     return ValueListenableBuilder<List<Barcode>>(
-        valueListenable: _cameraController.scannedBarcodes,
-        builder: (context, barcodes, child) {
-          final analysisSize = _cameraController.analysisSize;
-          if (analysisSize != null && barcodes.isNotEmpty) {
-            return CustomPaint(
-              painter: CodeBorderPainter(
-                imageSize: analysisSize,
-                barcodes: barcodes,
-                barcodePaintSelector: widget.codeBorderPaintBuilder,
-                textDecorator: widget.codeValueDisplayBuilder,
-              ),
-            );
-          } else {
-            return Container();
-          }
-        });
+      valueListenable: _cameraController.scannedBarcodes,
+      builder: (context, barcodes, child) {
+        final analysisSize = _cameraController.analysisSize;
+
+        if (analysisSize == null || barcodes.isEmpty) {
+          return ColoredBox(color: Colors.black);
+        }
+
+        return CustomPaint(
+          painter: CodeBorderPainter(
+            imageSize: analysisSize,
+            barcodes: barcodes,
+            barcodePaintSelector: widget.codeBorderPaintBuilder,
+            barcodeValueStyle: widget.barcodeValueStyle,
+          ),
+        );
+      },
+    );
   }
-}
-
-enum CodeValueDisplayLocation { centerTop, centerBottom }
-
-abstract class CodeValueDisplay {
-  final CodeValueDisplayLocation location;
-  final Color color;
-
-  TextSpan get textSpan;
-
-  CodeValueDisplay({
-    required this.color,
-    this.location = CodeValueDisplayLocation.centerBottom,
-  });
-}
-
-class BasicBarcodeValueDisplay extends CodeValueDisplay {
-  final String text;
-  final double fontSize;
-  final Color backgroundColor;
-  final FontWeight fontWeight;
-  final String fontFamily;
-
-  BasicBarcodeValueDisplay({
-    required this.text,
-    required super.color,
-    super.location,
-    CodeBorderPaintBuilder? customBarcodePaintSelector,
-    this.fontSize = 16.0,
-    this.backgroundColor = Colors.white,
-    this.fontWeight = FontWeight.w600,
-    this.fontFamily = "Roboto",
-  });
-
-  @override
-  TextSpan get textSpan => TextSpan(
-        style: TextStyle(
-            color: color,
-            fontSize: fontSize,
-            backgroundColor: backgroundColor,
-            fontWeight: fontWeight,
-            fontFamily: fontFamily),
-        text: text,
-      );
 }

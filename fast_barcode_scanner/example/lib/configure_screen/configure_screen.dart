@@ -159,7 +159,7 @@ class _ConfigureScreenState extends State<ConfigureScreen> {
 
   Future<void> applyChanges() async {
     try {
-      await CameraController().configure(
+      await CameraController.shared.configure(
         types: _config.types,
         framerate: _config.framerate,
         resolution: _config.resolution,

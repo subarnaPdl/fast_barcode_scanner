@@ -30,9 +30,9 @@ class ScannerState {
 class CameraController {
   CameraController._internal() : super();
 
-  static final _instance = CameraController._internal();
+  static final shared = CameraController._internal();
 
-  factory CameraController() => _instance;
+  // factory CameraController() => shared;
 
   StreamSubscription? _scanSilencerSubscription;
 

@@ -55,7 +55,7 @@ class BarcodeCameraState extends State<BarcodeCamera> {
   var _opacity = 0.0;
   var showingError = false;
 
-  final cameraController = CameraController();
+  final cameraController = CameraController.shared;
 
   @override
   void didChangeDependencies() {
